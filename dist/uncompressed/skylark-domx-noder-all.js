@@ -1,5 +1,5 @@
 /**
- * skylark-domx-ndoer - The skylark html node library for dom api extension.
+ * skylark-domx-noder - The skylark html node library for dom api extension.
  * @author Hudaokeji Co.,Ltd
  * @version v0.9.0
  * @link www.skylarkjs.org
@@ -4517,7 +4517,7 @@ define('skylark-domx-styler/main',[
 });
 define('skylark-domx-styler', ['skylark-domx-styler/main'], function (main) { return main; });
 
-define('skylark-domx-ndoer/noder',[
+define('skylark-domx-noder/noder',[
     "skylark-langx/skylark",
     "skylark-langx/langx",
     "skylark-domx-browser",
@@ -5242,12 +5242,12 @@ define('skylark-domx-ndoer/noder',[
 
     return skylark.attach("domx.noder" , noder);
 });
-define('skylark-domx-ndoer/main',[
+define('skylark-domx-noder/main',[
 	"./noder"
 ],function(noder){
 	return noder;
 });
-define('skylark-domx-ndoer', ['skylark-domx-ndoer/main'], function (main) { return main; });
+define('skylark-domx-noder', ['skylark-domx-noder/main'], function (main) { return main; });
 
 
 },this);
