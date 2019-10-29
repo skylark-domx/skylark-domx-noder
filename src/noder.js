@@ -1,9 +1,8 @@
 define([
     "skylark-langx/skylark",
     "skylark-langx/langx",
-    "skylark-domx-browser",
-    "skylark-domx-styler"
-], function(skylark, langx, browser, styler) {
+    "skylark-domx-browser"
+], function(skylark, langx, browser) {
     var isIE = !!navigator.userAgent.match(/Trident/g) || !!navigator.userAgent.match(/MSIE/g),
         fragmentRE = /^\s*<(\w+|!)[^>]*>/,
         singleTagRE = /^<(\w+)\s*\/?>(?:<\/\1>|)$/,
@@ -445,31 +444,10 @@ define([
      */
     function offsetParent(elm) {
         var parent = elm.offsetParent || document.body;
-        while (parent && !rootNodeRE.test(parent.nodeName) && styler.css(parent, "position") == "static") {
+        while (parent && !rootNodeRE.test(parent.nodeName) && document.defaultView.getComputedStyle(parent).position == "static") {
             parent = parent.offsetParent;
         }
         return parent;
-    }
-
-    /*   
-     *
-     * @param {Node} elm
-     * @param {Node} params
-     */
-    function overlay(elm, params) {
-        var overlayDiv = createElement("div", params);
-        styler.css(overlayDiv, {
-            position: "absolute",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            zIndex: 0x7FFFFFFF,
-            opacity: 0.7
-        });
-        elm.appendChild(overlayDiv);
-        return overlayDiv;
-
     }
 
     /*   
@@ -499,7 +477,7 @@ define([
     }
 
     function scrollParent( elm, includeHidden ) {
-        var position = styler.css(elm,"position" ),
+        var position = document.defaultView.getComputedStyle(elm).position,
             excludeStaticParent = position === "absolute",
             overflowRegex = includeHidden ? /(auto|scroll|hidden)/ : /(auto|scroll)/,
             scrollParent = this.parents().filter( function() {
@@ -534,65 +512,6 @@ define([
     function replace(node, oldNode) {
         oldNode.parentNode.replaceChild(node, oldNode);
         return this;
-    }
-
-    /*   
-     * Replace an old node with the specified node.
-     * @param {HTMLElement} elm
-     * @param {Node} params
-     */
-    function throb(elm, params) {
-        params = params || {};
-        var self = this,
-            text = params.text,
-            style = params.style,
-            time = params.time,
-            callback = params.callback,
-            timer,
-
-            throbber = this.createElement("div", {
-                "class": params.className || "throbber"
-            }),
-            _overlay = overlay(throbber, {
-                "class": 'overlay fade'
-            }),
-            throb = this.createElement("div", {
-                "class": "throb"
-            }),
-            textNode = this.createTextNode(text || ""),
-            remove = function() {
-                if (timer) {
-                    clearTimeout(timer);
-                    timer = null;
-                }
-                if (throbber) {
-                    self.remove(throbber);
-                    throbber = null;
-                }
-            },
-            update = function(params) {
-                if (params && params.text && throbber) {
-                    textNode.nodeValue = params.text;
-                }
-            };
-        if (params.style) {
-            styler.css(throbber,params.style);
-        }
-        throb.appendChild(textNode);
-        throbber.appendChild(throb);
-        elm.appendChild(throbber);
-        var end = function() {
-            remove();
-            if (callback) callback();
-        };
-        if (time) {
-            timer = setTimeout(end, time);
-        }
-
-        return {
-            remove: remove,
-            update: update
-        };
     }
 
 
@@ -729,8 +648,6 @@ define([
         removeChild : removeChild,
 
         replace: replace,
-
-        throb: throb,
 
         traverse: traverse,
 
