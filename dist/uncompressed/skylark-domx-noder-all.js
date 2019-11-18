@@ -4078,7 +4078,7 @@ define('skylark-domx-noder/noder',[
                 node.appendChild(html);
             }
 
-
+            return this;
         }
     }
 

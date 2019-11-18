@@ -338,7 +338,7 @@ define([
                 node.appendChild(html);
             }
 
-
+            return this;
         }
     }
 
