@@ -259,6 +259,16 @@ define('skylark-domx-noder/noder',[
         return node;
     }
 
+function removeSelfClosingTags(xml) {
+    var split = xml.split("/>");
+    var newXml = "";
+    for (var i = 0; i < split.length - 1;i++) {
+        var edsplit = split[i].split("<");
+        newXml += split[i] + "></" + edsplit[edsplit.length - 1].split(" ")[0] + ">";
+    }
+    return newXml + split[split.length-1];
+}
+
     /*   
      * Create a DocumentFragment from the HTML fragment.
      * @param {String} html
@@ -275,7 +285,7 @@ define('skylark-domx-noder/noder',[
             name = "*"
         }
         var container = containers[name];
-        container.innerHTML = "" + html;
+        container.innerHTML = removeSelfClosingTags("" + html);
         dom = slice.call(container.childNodes);
 
         dom.forEach(function(node) {
