@@ -75,7 +75,7 @@
   factory(define,require);
 
   if (!isAmd) {
-    var skylarkjs = require("skylark-langx/skylark");
+    var skylarkjs = require("skylark-langx-ns");
 
     if (isCmd) {
       module.exports = skylarkjs;
@@ -264,7 +264,6 @@ define('skylark-langx-types/types',[
         }
     }
 
-
     function isNull(obj) {
         return obj === null;
     }
@@ -346,7 +345,12 @@ define('skylark-langx-types/types',[
 
         isHtmlNode: isHtmlNode,
 
+        isNaN : function (obj) {
+            return isNaN(obj);
+        },
+
         isNull: isNull,
+
 
         isNumber: isNumber,
 
@@ -2283,96 +2287,93 @@ define('skylark-langx-async/Deferred',[
 
    
     function makePromise2(promise) {
-      // Don't modify any promise that has been already modified.
-      if (promise.isResolved) return promise;
+        // Don't modify any promise that has been already modified.
+        if (promise.isResolved) return promise;
 
-      // Set initial state
-      var isPending = true;
-      var isRejected = false;
-      var isResolved = false;
+        // Set initial state
+        var isPending = true;
+        var isRejected = false;
+        var isResolved = false;
 
-      // Observe the promise, saving the fulfillment in a closure scope.
-      var result = promise.then(
-          function(v) {
-              isResolved = true;
-              isPending = false;
-              return v; 
-          }, 
-          function(e) {
-              isRejected = true;
-              isPending = false;
-              throw e; 
-          }
-      );
+        // Observe the promise, saving the fulfillment in a closure scope.
+        var result = promise.then(
+            function(v) {
+                isResolved = true;
+                isPending = false;
+                return v; 
+            }, 
+            function(e) {
+                isRejected = true;
+                isPending = false;
+                throw e; 
+            }
+        );
 
-      result.isResolved = function() { return isResolved; };
-      result.isPending = function() { return isPending; };
-      result.isRejected = function() { return isRejected; };
+        result.isResolved = function() { return isResolved; };
+        result.isPending = function() { return isPending; };
+        result.isRejected = function() { return isRejected; };
 
+        result.state = function() {
+            if (isResolved) {
+                return 'resolved';
+            }
+            if (isRejected) {
+                return 'rejected';
+            }
+            return 'pending';
+        };
 
-      result.state = function() {
-                if (isResolved) {
-                    return 'resolved';
-                }
-                if (isRejected) {
-                    return 'rejected';
-                }
-                return 'pending';
-      };
-
-      var notified = [],
-          listeners = [];
+        var notified = [],
+            listeners = [];
 
           
-      result.then = function(onResolved,onRejected,onProgress) {
-                    if (onProgress) {
-                        this.progress(onProgress);
+        result.then = function(onResolved,onRejected,onProgress) {
+            if (onProgress) {
+                this.progress(onProgress);
+            }
+            return makePromise2(Promise.prototype.then.call(this,
+                onResolved && function(args) {
+                    if (args && args.__ctx__ !== undefined) {
+                        return onResolved.apply(args.__ctx__,args);
+                    } else {
+                        return onResolved(args);
                     }
-                    return makePromise2(Promise.prototype.then.call(this,
-                            onResolved && function(args) {
-                                if (args && args.__ctx__ !== undefined) {
-                                    return onResolved.apply(args.__ctx__,args);
-                                } else {
-                                    return onResolved(args);
-                                }
-                            },
-                            onRejected && function(args){
-                                if (args && args.__ctx__ !== undefined) {
-                                    return onRejected.apply(args.__ctx__,args);
-                                } else {
-                                    return onRejected(args);
-                                }
-                            }
-                          )
-                    );
-      };
+                },
+                onRejected && function(args){
+                    if (args && args.__ctx__ !== undefined) {
+                        return onRejected.apply(args.__ctx__,args);
+                    } else {
+                        return onRejected(args);
+                    }
+                }
+            ));
+        };
 
-      result.progress = function(handler) {
-                    notified.forEach(function (value) {
-                        handler(value);
-                    });
-                    listeners.push(handler);
-                    return this;
-      };
-
-      result.pipe = result.then;
-
-      result.notify = function(value) {
-        try {
-           notified.push(value);
-
-            return listeners.forEach(function (listener) {
-                return listener(value);
+        result.progress = function(handler) {
+            notified.forEach(function (value) {
+                handler(value);
             });
-        } catch (error) {
-          this.reject(error);
-        }
-        return this;
-     };
+            listeners.push(handler);
+            return this;
+        };
 
-      return result;
-   }
+        result.pipe = result.then;
 
+        result.notify = function(value) {
+            try {
+                notified.push(value);
+
+                return listeners.forEach(function (listener) {
+                    return listener(value);
+                });
+            } catch (error) {
+            this.reject(error);
+            }
+            return this;
+        };
+
+        return result;
+    }
 
  
     Deferred.prototype.resolve = function(value) {
@@ -2417,6 +2418,11 @@ define('skylark-langx-async/Deferred',[
         return p.isRejected();
     };
 
+    Deferred.prototype.state = function() {
+        var p = result(this,"promise");
+        return p.state();
+    };
+
     Deferred.prototype.then = function(callback, errback, progback) {
         var p = result(this,"promise");
         return p.then(callback, errback, progback);
@@ -2435,17 +2441,20 @@ define('skylark-langx-async/Deferred',[
 
     Deferred.prototype.always  = function() {
         var p = result(this,"promise");
-        return p.always.apply(p,arguments);
+        p.always.apply(p,arguments);
+        return this;
     };
 
     Deferred.prototype.done  = function() {
         var p = result(this,"promise");
-        return p.done.apply(p,arguments);
+        p.done.apply(p,arguments);
+        return this;
     };
 
     Deferred.prototype.fail = function(errback) {
         var p = result(this,"promise");
-        return p.fail(errback);
+        p.fail(errback);
+        return this;
     };
 
 
@@ -2497,8 +2506,16 @@ define('skylark-langx-async/Deferred',[
 
     Deferred.immediate = Deferred.resolve;
 
-    return Deferred;
 
+    Deferred.promise = function(callback) {
+        var d = new Deferred();
+
+        callback(d.resolve.bind(d),d.reject.bind(d),d.progress.bind(d));
+
+        return d.promise;
+    };
+
+    return Deferred;
 });
 define('skylark-langx-async/async',[
     "skylark-langx-ns",
@@ -4291,6 +4308,9 @@ function removeSelfClosingTags(xml) {
         return new RegExp("^(" + (blockNodes.join('|')) + ")$").test(node.nodeName.toLowerCase());
     }
 
+    function isActive (elem) {
+            return elem === document.activeElement && (elem.type || elem.href);
+    }
 
     /*   
      * Get the owner document object for the specified element.
@@ -4414,6 +4434,18 @@ function removeSelfClosingTags(xml) {
     }
 
 
+    function selectable(elem, selectable) {
+        if (elem === undefined || elem.style === undefined)
+            return;
+        elem.onselectstart = selectable ? function () {
+            return false;
+        } : function () {
+        };
+        elem.style.MozUserSelect = selectable ? 'auto' : 'none';
+        elem.style.KhtmlUserSelect = selectable ? 'auto' : 'none';
+        elem.unselectable = selectable ? 'on' : 'off';
+    }
+
     /*   
      * traverse the specified node and its descendants, perform the callback function on each
      * @param {Node} node
@@ -4487,6 +4519,12 @@ function removeSelfClosingTags(xml) {
     langx.mixin(noder, {
         active  : activeElement,
 
+        after: after,
+
+        append: append,
+
+        before: before,
+
         blur : function(el) {
             el.blur();
         },
@@ -4496,14 +4534,16 @@ function removeSelfClosingTags(xml) {
         },
 
         clone: clone,
+
+        contains: contains,
+
         contents: contents,
 
         createElement: createElement,
 
         createFragment: createFragment,
 
-        contains: contains,
-
+     
         createTextNode: createTextNode,
 
         doc: doc,
@@ -4515,6 +4555,8 @@ function removeSelfClosingTags(xml) {
         focusable: focusable,
 
         html: html,
+
+        isActive,
 
         isChildOf: isChildOf,
 
@@ -4532,13 +4574,7 @@ function removeSelfClosingTags(xml) {
 
         ownerWindow: ownerWindow,
 
-        after: after,
-
-        before: before,
-
         prepend: prepend,
-
-        append: append,
 
         reflow: reflow,
 
@@ -4547,6 +4583,8 @@ function removeSelfClosingTags(xml) {
         removeChild : removeChild,
 
         replace: replace,
+
+        selectable,
 
         traverse: traverse,
 

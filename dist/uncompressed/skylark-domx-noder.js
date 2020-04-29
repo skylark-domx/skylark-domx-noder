@@ -75,7 +75,7 @@
   factory(define,require);
 
   if (!isAmd) {
-    var skylarkjs = require("skylark-langx/skylark");
+    var skylarkjs = require("skylark-langx-ns");
 
     if (isCmd) {
       module.exports = skylarkjs;
@@ -497,6 +497,9 @@ function removeSelfClosingTags(xml) {
         return new RegExp("^(" + (blockNodes.join('|')) + ")$").test(node.nodeName.toLowerCase());
     }
 
+    function isActive (elem) {
+            return elem === document.activeElement && (elem.type || elem.href);
+    }
 
     /*   
      * Get the owner document object for the specified element.
@@ -620,6 +623,18 @@ function removeSelfClosingTags(xml) {
     }
 
 
+    function selectable(elem, selectable) {
+        if (elem === undefined || elem.style === undefined)
+            return;
+        elem.onselectstart = selectable ? function () {
+            return false;
+        } : function () {
+        };
+        elem.style.MozUserSelect = selectable ? 'auto' : 'none';
+        elem.style.KhtmlUserSelect = selectable ? 'auto' : 'none';
+        elem.unselectable = selectable ? 'on' : 'off';
+    }
+
     /*   
      * traverse the specified node and its descendants, perform the callback function on each
      * @param {Node} node
@@ -693,6 +708,12 @@ function removeSelfClosingTags(xml) {
     langx.mixin(noder, {
         active  : activeElement,
 
+        after: after,
+
+        append: append,
+
+        before: before,
+
         blur : function(el) {
             el.blur();
         },
@@ -702,14 +723,16 @@ function removeSelfClosingTags(xml) {
         },
 
         clone: clone,
+
+        contains: contains,
+
         contents: contents,
 
         createElement: createElement,
 
         createFragment: createFragment,
 
-        contains: contains,
-
+     
         createTextNode: createTextNode,
 
         doc: doc,
@@ -721,6 +744,8 @@ function removeSelfClosingTags(xml) {
         focusable: focusable,
 
         html: html,
+
+        isActive,
 
         isChildOf: isChildOf,
 
@@ -738,13 +763,7 @@ function removeSelfClosingTags(xml) {
 
         ownerWindow: ownerWindow,
 
-        after: after,
-
-        before: before,
-
         prepend: prepend,
-
-        append: append,
 
         reflow: reflow,
 
@@ -753,6 +772,8 @@ function removeSelfClosingTags(xml) {
         removeChild : removeChild,
 
         replace: replace,
+
+        selectable,
 
         traverse: traverse,
 
