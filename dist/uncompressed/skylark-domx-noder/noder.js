@@ -613,6 +613,22 @@ function removeSelfClosingTags(xml) {
         }
     }
 
+
+
+    function isInput (el) { 
+        return el.tagName === 'INPUT' || 
+               el.tagName === 'TEXTAREA' || 
+               el.tagName === 'SELECT' || 
+               isEditable(el); 
+    }
+    
+    function isEditable (el) {
+      if (!el) { return false; } // no parents were editable
+      if (el.contentEditable === 'false') { return false; } // stop the lookup
+      if (el.contentEditable === 'true') { return true; } // found a contentEditable element in the chain
+      return isEditable(el.parentNode); // contentEditable is set to 'inherit'
+    }
+
     function noder() {
         return noder;
     }
@@ -644,7 +660,6 @@ function removeSelfClosingTags(xml) {
 
         createFragment: createFragment,
 
-     
         createTextNode: createTextNode,
 
         doc: doc,
@@ -663,7 +678,12 @@ function removeSelfClosingTags(xml) {
 
         isDocument: isDocument,
 
+        isEditable,
+        
         isInDocument: isInDocument,
+
+        isInput,
+
 
         isWindow: langx.isWindow,
 
