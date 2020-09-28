@@ -328,6 +328,9 @@ function removeSelfClosingTags(xml) {
         return focusableIfVisible && $( element ).is( ":visible" ) && visible( $( element ) );
     };
 
+    function fromPoint(x,y) {
+        return document.elementFromPoint(x,y);
+    }
 
    var rxhtmlTag = /<(?!area|br|col|embed|hr|img|input|link|meta|param)(([\w:]+)[^>]*)\/>/gi;
  
@@ -669,6 +672,8 @@ function removeSelfClosingTags(xml) {
         fullScreen: fullScreen,
 
         focusable: focusable,
+
+        fromPoint,
 
         html: html,
 
