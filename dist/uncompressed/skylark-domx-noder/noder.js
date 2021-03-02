@@ -148,10 +148,10 @@ define([
     /*   
      * Create a element and set attributes on it.
      * @param {HTMLElement} tag
-     * @param {props} props
+     * @param {attrs} attrs
      * @param } parent
      */
-    function createElement(tag, props, parent) {
+    function createElement(tag, props,attrs, parent) {
         var node;
 
         if (/svg/i.test(tag)) {
@@ -160,9 +160,24 @@ define([
             node = document.createElement(tag);
         }
 
+        if (langx.isHtmlNode(props)) {
+            parent = props;
+            props = null;
+            attrs = null;
+        } else if (langx.isHtmlNode(attrs)){
+            parent = attrs;
+            attrs = null;
+        }
+
         if (props) {
             for (var name in props) {
-                node.setAttribute(name, props[name]);
+                node[name] = props[name];
+            }
+        }
+
+        if (attrs) {
+            for (var name in attrs) {
+                node.setAttribute(name, attrs[name]);
             }
         }
         if (parent) {
@@ -435,6 +450,24 @@ function removeSelfClosingTags(xml) {
             return elem === document.activeElement && (elem.type || elem.href);
     }
 
+
+    function isTextNode(node) {
+        return node && node.nodeType === 3;
+    }
+
+
+    function isElement(node) {
+        return node && node.nodeType === 1;
+    }
+
+    function isInFrame() {
+        try {
+            return window.parent !== window.self;
+        } catch (x) {
+            return true;
+        }
+    }
+
     /*   
      * Get the owner document object for the specified element.
      * @param {Node} elm
@@ -700,16 +733,21 @@ function removeSelfClosingTags(xml) {
 
         isActive,
 
-        isChildOf: isChildOf,
+        isChildOf,
 
-        isDocument: isDocument,
+        isDocument,
 
         isEditable,
         
-        isInDocument: isInDocument,
+        isElement,
+
+        isInDocument,
+
+        isInFrame,
 
         isInput,
 
+        isTextNode,
 
         isWindow: langx.isWindow,
 
