@@ -111,10 +111,32 @@ define('skylark-domx-noder/noder',[
         map = Array.prototype.map,
         slice = Array.prototype.slice;
 
-    function ensureNodes(nodes, copyByClone) {
-        if (!langx.isArrayLike(nodes)) {
-            nodes = [nodes];
+
+
+    function normalizeContent(content) {
+        if (typeof content === 'function') {
+            content = content();
         }
+        return map.call(langx.isArrayLike(content) ? content : [content],value => {
+            if (typeof value === 'function') {
+                value = value();
+            }
+            if (isElement(value) || isTextNode(value)) {
+                return value;
+            }
+            if (typeof value === 'string' && /\S/.test(value)) {
+                return document.createTextNode(value);
+            }
+        }).filter(value => value);
+    }
+
+    function ensureNodes(content, copyByClone) {
+        var nodes = normalizeContent(content);
+
+
+        //if (!langx.isArrayLike(nodes)) {
+        //    nodes = [nodes];
+        //}
         if (copyByClone) {
             nodes = map.call(nodes, function(node) {
                 return node.cloneNode(true);
