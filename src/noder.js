@@ -310,11 +310,11 @@ function removeSelfClosingTags(xml) {
 
     var fulledEl = null;
 
-    function fullScreen(el) {
+    function fullscreen(el) {
         if (el === false) {
-            browser.exitFullScreen.apply(document);
+            return browser.exitFullscreen.apply(document);
         } else if (el) {
-            browser.requestFullScreen.apply(el);
+            return browser.requestFullscreen.apply(el);
             fulledEl = el;
         } else {
             return (
@@ -324,6 +324,10 @@ function removeSelfClosingTags(xml) {
                 document.msFullscreenElement
             )
         }
+    }
+
+    function isFullscreen(el) {
+        return fullscreen() === el;
     }
 
 
@@ -745,7 +749,7 @@ function removeSelfClosingTags(xml) {
 
         generateId,
 
-        fullScreen: fullScreen,
+        fullscreen: fullscreen,
 
         focusable: focusable,
 
@@ -762,6 +766,8 @@ function removeSelfClosingTags(xml) {
         isEditable,
         
         isElement,
+
+        isFullscreen,
 
         isInDocument,
 
