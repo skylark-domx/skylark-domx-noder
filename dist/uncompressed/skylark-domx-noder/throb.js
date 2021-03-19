@@ -21,7 +21,7 @@ define([
             timer,
 
             throbber = noder.createElement("div", {
-                "class": params.className || "throbber"
+                "className": params.className || "throbber"
             }),
             //_overlay = overlay(throbber, {
             //    "class": 'overlay fade'
