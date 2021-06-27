@@ -597,7 +597,7 @@ function removeSelfClosingTags(xml) {
 
 
     function reflow(elm) {
-        if (el == null) {
+        if (!elm) {
           elm = document;
         }
         elm.offsetHeight;
