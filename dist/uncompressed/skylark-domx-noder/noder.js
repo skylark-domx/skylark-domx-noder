@@ -1,8 +1,9 @@
 define([
     "skylark-langx/skylark",
     "skylark-langx/langx",
+    "skylark-langx-scripter",
     "skylark-domx-browser"
-], function(skylark, langx, browser) {
+], function(skylark, langx, scripter,browser) {
     var isIE = !!navigator.userAgent.match(/Trident/g) || !!navigator.userAgent.match(/MSIE/g),
         fragmentRE = /^\s*<(\w+|!)[^>]*>/,
         singleTagRE = /^<(\w+)\s*\/?>(?:<\/\1>|)$/,
@@ -399,7 +400,7 @@ function removeSelfClosingTags(xml) {
      * @param {HTMLElement} node
      * @param {String} html
      */
-    function html(node, html) {
+    function _html(node, html) {
         if (html === undefined) {
             return node.innerHTML;
         } else {
@@ -422,6 +423,24 @@ function removeSelfClosingTags(xml) {
         }
     }
 
+
+    function html(node,value) {
+        var result = _html(node,value);
+
+        if (value !== undefined) {
+            var scripts = node.querySelectorAll('script');
+
+            for (var i =0; i<scripts.length; i++) {
+                var node1 = scripts[i];
+                if (rscriptType.test( node1.type || "" ) ) {
+                  scripter.evaluate(node1.textContent,node1);
+                }
+            }       
+            return this;         
+        } else {
+            return result;
+        }
+    }
 
     /*   
      * Check to see if a dom node is a descendant of another dom node.
