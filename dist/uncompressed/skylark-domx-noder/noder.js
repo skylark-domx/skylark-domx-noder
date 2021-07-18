@@ -404,7 +404,7 @@ function removeSelfClosingTags(xml) {
         if (html === undefined) {
             return node.innerHTML;
         } else {
-            this.empty(node);
+            empty(node);
             html = html || "";
             if (langx.isString(html)) {
                 html = html.replace( rxhtmlTag, "<$1></$2>" );
