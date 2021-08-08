@@ -887,7 +887,7 @@ function removeSelfClosingTags(xml) {
 
         isTextNode,
 
-        isWindow: langx.isWindow,
+        isWindow: types.isWindow,
 
         nodeName : nodeName,
 
