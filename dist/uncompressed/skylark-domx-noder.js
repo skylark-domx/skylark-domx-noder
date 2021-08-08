@@ -87,11 +87,13 @@
 })(function(define,require) {
 
 define('skylark-domx-noder/noder',[
-    "skylark-langx/skylark",
-    "skylark-langx/langx",
+    "skylark-langx-ns",
+    "skylark-langx-types",
+    "skylark-langx-arrays",
+    "skylark-langx-strings",
     "skylark-langx-scripter",
     "skylark-domx-browser"
-], function(skylark, langx, scripter,browser) {
+], function(skylark, types, arrays, strings,scripter,browser) {
     var isIE = !!navigator.userAgent.match(/Trident/g) || !!navigator.userAgent.match(/MSIE/g),
         fragmentRE = /^\s*<(\w+|!)[^>]*>/,
         singleTagRE = /^<(\w+)\s*\/?>(?:<\/\1>|)$/,
@@ -109,6 +111,7 @@ define('skylark-domx-noder/noder',[
             '*': div
         },
         rootNodeRE = /^(?:body|html)$/i,
+        rscriptType = ( /^$|^module$|\/(?:java|ecma)script/i ),
         map = Array.prototype.map,
         slice = Array.prototype.slice;
 
@@ -118,7 +121,7 @@ define('skylark-domx-noder/noder',[
         if (typeof content === 'function') {
             content = content();
         }
-        return map.call(langx.isArrayLike(content) ? content : [content],value => {
+        return map.call(types.isArrayLike(content) ? content : [content],value => {
             if (typeof value === 'function') {
                 value = value();
             }
@@ -135,7 +138,7 @@ define('skylark-domx-noder/noder',[
         var nodes = normalizeContent(content);
 
 
-        //if (!langx.isArrayLike(nodes)) {
+        //if (!types.isArrayLike(nodes)) {
         //    nodes = [nodes];
         //}
         if (copyByClone) {
@@ -143,7 +146,7 @@ define('skylark-domx-noder/noder',[
                 return node.cloneNode(true);
             });
         }
-        return langx.flatten(nodes);
+        return arrays.flatten(nodes);
     }
 
     function nodeName(elm, chkName) {
@@ -185,21 +188,21 @@ define('skylark-domx-noder/noder',[
     };
 
     function enhancePlaceContent(placing,node) {
-        if (langx.isFunction(placing)) {
+        if (types.isFunction(placing)) {
             return placing.apply(node,[]);
         }
-        if (langx.isArrayLike(placing)) {
+        if (types.isArrayLike(placing)) {
             var neddsFlattern;
             for (var i=0;i<placing.length;i++) {
-                if (langx.isFunction(placing[i])) {
+                if (types.isFunction(placing[i])) {
                     placing[i] = placing[i].apply(node,[]);
-                    if (langx.isArrayLike(placing[i])) {
+                    if (types.isArrayLike(placing[i])) {
                         neddsFlattern = true;
                     }
                 }
             }
             if (neddsFlattern) {
-                placing = langx.flatten(placing);
+                placing = arrays.flatten(placing);
             }
         }
         return placing;
@@ -271,11 +274,11 @@ define('skylark-domx-noder/noder',[
             node = document.createElement(tag);
         }
 
-        if (langx.isHtmlNode(props)) {
+        if (types.isHtmlNode(props)) {
             parent = props;
             props = null;
             attrs = null;
-        } else if (langx.isHtmlNode(attrs)){
+        } else if (types.isHtmlNode(attrs)){
             parent = attrs;
             attrs = null;
         }
@@ -313,7 +316,7 @@ function removeSelfClosingTags(xml) {
      */
     function createFragment(html) {
         // A special case optimization for a single tag
-        html = langx.trim(html);
+        html = strings.trim(html);
         if (singleTagRE.test(html)) {
             return [createElement(RegExp.$1)];
         }
@@ -494,12 +497,12 @@ function removeSelfClosingTags(xml) {
         } else {
             empty(node);
             html = html || "";
-            if (langx.isString(html)) {
+            if (types.isString(html)) {
                 html = html.replace( rxhtmlTag, "<$1></$2>" );
             }
-            if (langx.isString(html) || langx.isNumber(html)) {               
+            if (types.isString(html) || types.isNumber(html)) {               
                 node.innerHTML = html;
-            } else if (langx.isArrayLike(html)) {
+            } else if (types.isArrayLike(html)) {
                 for (var i = 0; i < html.length; i++) {
                     node.appendChild(html[i]);
                 }
@@ -674,7 +677,7 @@ function removeSelfClosingTags(xml) {
     }
 
     function removeChild(node,children) {
-        if (!langx.isArrayLike(children)) {
+        if (!types.isArrayLike(children)) {
             children = [children];
         }
         for (var i=0;i<children.length;i++) {
@@ -768,7 +771,7 @@ function removeSelfClosingTags(xml) {
      * @param {Node} wrapperNode
      */
     function wrapper(node, wrapperNode) {
-        if (langx.isString(wrapperNode)) {
+        if (types.isString(wrapperNode)) {
             wrapperNode = this.createFragment(wrapperNode).firstChild;
         }
         node.parentNode.insertBefore(wrapperNode, node);
@@ -821,7 +824,7 @@ function removeSelfClosingTags(xml) {
         return noder;
     }
 
-    langx.mixin(noder, {
+    Object.assign(noder, {
         active  : activeElement,
 
         after: after,
