@@ -125,7 +125,7 @@ define('skylark-domx-noder/noder',[
             if (typeof value === 'function') {
                 value = value();
             }
-            if (isElement(value) || isTextNode(value)) {
+            if (isElement(value) || isTextNode(value) || isFragment(value)) {
                 return value;
             }
             if (typeof value === 'string' && /\S/.test(value)) {
@@ -591,6 +591,10 @@ function removeSelfClosingTags(xml) {
         return node && node.nodeType === 3;
     }
 
+    function isFragment(node) {
+        return node && node.nodeType === 11;
+    }
+
 
     function isElement(node) {
         return node && node.nodeType === 1;
@@ -876,6 +880,8 @@ function removeSelfClosingTags(xml) {
         isEditable,
         
         isElement,
+
+        isFragment,
 
         isFullscreen,
 
