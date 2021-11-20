@@ -56,5 +56,5 @@ define([
     }
 
 
-	return noder.isInFrame = isInFrame;
+	return noder.html = html;
 });

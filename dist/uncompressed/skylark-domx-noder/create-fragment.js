@@ -2,7 +2,7 @@ define([
     "skylark-langx-strings",
 	"./noder",
     "./create-element"
-],function(noder,createElement){
+],function(strings,noder,createElement){
     var fragmentRE = /^\s*<(\w+|!)[^>]*>/,
         singleTagRE = /^<(\w+)\s*\/?>(?:<\/\1>|)$/,
         div = document.createElement("div"),

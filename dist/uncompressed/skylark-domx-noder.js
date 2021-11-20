@@ -98,99 +98,8 @@ define('skylark-domx-noder/noder',[
         map = Array.prototype.map,
         slice = Array.prototype.slice;
 
-    function normalizeContent(content) {
-        if (typeof content === 'function') {
-            content = content();
-        }
-        return map.call(types.isArrayLike(content) ? content : [content],value => {
-            if (typeof value === 'function') {
-                value = value();
-            }
-            if (isElement(value) || isTextNode(value) || isFragment(value)) {
-                return value;
-            }
-            if (typeof value === 'string' && /\S/.test(value)) {
-                return document.createTextNode(value);
-            }
-        }).filter(value => value);
-    }
-
-    function ensureNodes(content, copyByClone) {
-        var nodes = normalizeContent(content);
 
 
-        //if (!types.isArrayLike(nodes)) {
-        //    nodes = [nodes];
-        //}
-        if (copyByClone) {
-            nodes = map.call(nodes, function(node) {
-                return node.cloneNode(true);
-            });
-        }
-        return arrays.flatten(nodes);
-    }
-
-    function enhancePlaceContent(placing,node) {
-        if (types.isFunction(placing)) {
-            return placing.apply(node,[]);
-        }
-        if (types.isArrayLike(placing)) {
-            var neddsFlattern;
-            for (var i=0;i<placing.length;i++) {
-                if (types.isFunction(placing[i])) {
-                    placing[i] = placing[i].apply(node,[]);
-                    if (types.isArrayLike(placing[i])) {
-                        neddsFlattern = true;
-                    }
-                }
-            }
-            if (neddsFlattern) {
-                placing = arrays.flatten(placing);
-            }
-        }
-        return placing;
-    }
-    function after(node, placing, copyByClone) {
-        placing = enhancePlaceContent(placing,node);
-        var refNode = node,
-            parent = refNode.parentNode;
-        if (parent) {
-            var nodes = ensureNodes(placing, copyByClone),
-                refNode = refNode.nextSibling;
-
-            for (var i = 0; i < nodes.length; i++) {
-                if (refNode) {
-                    parent.insertBefore(nodes[i], refNode);
-                } else {
-                    parent.appendChild(nodes[i]);
-                }
-            }
-        }
-        return this;
-    }
-
-    function append(node, placing, copyByClone) {
-        placing = enhancePlaceContent(placing,node);
-        var parentNode = node,
-            nodes = ensureNodes(placing, copyByClone);
-        for (var i = 0; i < nodes.length; i++) {
-            parentNode.appendChild(nodes[i]);
-        }
-        return this;
-    }
-
-    function before(node, placing, copyByClone) {
-        placing = enhancePlaceContent(placing,node);
-        var refNode = node,
-            parent = refNode.parentNode;
-        if (parent) {
-            var nodes = ensureNodes(placing, copyByClone);
-            for (var i = 0; i < nodes.length; i++) {
-                parent.insertBefore(nodes[i], refNode);
-            }
-        }
-        return this;
-    }
 
 
     function fromPoint(x,y) {
@@ -216,37 +125,12 @@ define('skylark-domx-noder/noder',[
     }
 
 
-    /*   
-     * insert one or more nodes as the first children of the specified node.
-     * @param {Node} node
-     * @param {Node or ArrayLike} placing
-     * @param {Boolean Optional} copyByClone
-     */
-    function prepend(node, placing, copyByClone) {
-        var parentNode = node,
-            refNode = parentNode.firstChild,
-            nodes = ensureNodes(placing, copyByClone);
-        for (var i = 0; i < nodes.length; i++) {
-            if (refNode) {
-                parentNode.insertBefore(nodes[i], refNode);
-            } else {
-                parentNode.appendChild(nodes[i]);
-            }
-        }
-        return this;
-    }
-
-
     function noder() {
         return noder;
     }
 
     Object.assign(noder, {
-        after: after,
 
-        append: append,
-
-        before: before,
 
         blur : function(el) {
             el.blur();
@@ -258,15 +142,7 @@ define('skylark-domx-noder/noder',[
 
         generateId,
 
-        fullscreen: fullscreen,
-
-        focusable: focusable,
-
-        fromPoint,
-
-        isFullscreen,
-
-        prepend: prepend
+        fromPoint
     });
 
     return skylark.attach("domx.noder" , noder);
@@ -304,6 +180,189 @@ define('skylark-domx-noder/active',[
         return el;
     };
 	return noder.active = activeElement;
+});
+define('skylark-domx-noder/_enhance_place_content',[
+    "skylark-langx-types",
+    "skylark-langx-arrays",
+	"./noder"
+],function(types,arrays,noder){
+    function enhancePlaceContent(placing,node) {
+        if (types.isFunction(placing)) {
+            return placing.apply(node,[]);
+        }
+        if (types.isArrayLike(placing)) {
+            var neddsFlattern;
+            for (var i=0;i<placing.length;i++) {
+                if (types.isFunction(placing[i])) {
+                    placing[i] = placing[i].apply(node,[]);
+                    if (types.isArrayLike(placing[i])) {
+                        neddsFlattern = true;
+                    }
+                }
+            }
+            if (neddsFlattern) {
+                placing = arrays.flatten(placing);
+            }
+        }
+        return placing;
+    }
+
+	return enhancePlaceContent;
+});
+define('skylark-domx-noder/is-element',[
+	"./noder"
+],function(noder){
+ 
+    function isElement(node) {
+        return node && node.nodeType === 1;
+    }
+
+	
+	return noder.isElement = isElement;
+});
+define('skylark-domx-noder/is-text-node',[
+	"./noder"
+],function(noder){
+ 
+    function isTextNode(node) {
+        return node && node.nodeType === 3;
+    }
+
+	
+	return noder.isTextNode = isTextNode;
+});
+define('skylark-domx-noder/is-fragment',[
+	"./noder"
+],function(noder){
+ 
+    function isFragment(node) {
+        return node && node.nodeType === 11;
+    }
+
+	return noder.isFragment = isFragment;
+});
+define('skylark-domx-noder/_normalize_content',[
+    "skylark-langx-types",
+	"./noder",
+    "./is-element",
+    "./is-text-node",
+    "./is-fragment"
+],function(types,noder,isElement,isTextNode,isFragment){
+    var  
+        map = Array.prototype.map;
+        
+    function normalizeContent(content) {
+        if (typeof content === 'function') {
+            content = content();
+        }
+        return map.call(types.isArrayLike(content) ? content : [content],value => {
+            if (typeof value === 'function') {
+                value = value();
+            }
+            if (isElement(value) || isTextNode(value) || isFragment(value)) {
+                return value;
+            }
+            if (typeof value === 'string' && /\S/.test(value)) {
+                return document.createTextNode(value);
+            }
+        }).filter(value => value);
+    }
+
+	return normalizeContent;
+});
+define('skylark-domx-noder/_ensure_nodes',[
+    "skylark-langx-arrays",
+	"./noder",
+    "./_normalize_content"
+],function(arrays,noder,normalizeContent){
+    var  
+        map = Array.prototype.map;
+
+    function ensureNodes(content, copyByClone) {
+        var nodes = normalizeContent(content);
+
+
+        //if (!types.isArrayLike(nodes)) {
+        //    nodes = [nodes];
+        //}
+        if (copyByClone) {
+            nodes = map.call(nodes, function(node) {
+                return node.cloneNode(true);
+            });
+        }
+        return arrays.flatten(nodes);
+    }
+
+	return ensureNodes;
+});
+define('skylark-domx-noder/after',[
+	"./noder",
+    "./_enhance_place_content",
+    "./_ensure_nodes"
+],function(noder,enhancePlaceContent,ensureNodes){
+ 
+    function after(node, placing, copyByClone) {
+        placing = enhancePlaceContent(placing,node);
+        var refNode = node,
+            parent = refNode.parentNode;
+        if (parent) {
+            var nodes = ensureNodes(placing, copyByClone),
+                refNode = refNode.nextSibling;
+
+            for (var i = 0; i < nodes.length; i++) {
+                if (refNode) {
+                    parent.insertBefore(nodes[i], refNode);
+                } else {
+                    parent.appendChild(nodes[i]);
+                }
+            }
+        }
+        return this;
+    }
+
+	
+	return noder.after = after;
+});
+define('skylark-domx-noder/append',[
+    "./noder",
+    "./_enhance_place_content",
+    "./_ensure_nodes"
+],function(noder,enhancePlaceContent,ensureNodes){
+ 
+    function append(node, placing, copyByClone) {
+        placing = enhancePlaceContent(placing,node);
+        var parentNode = node,
+            nodes = ensureNodes(placing, copyByClone);
+        for (var i = 0; i < nodes.length; i++) {
+            parentNode.appendChild(nodes[i]);
+        }
+        return this;
+    }
+    
+    return noder.append = append;
+});
+define('skylark-domx-noder/before',[
+    "./noder",
+    "./_enhance_place_content",
+    "./_ensure_nodes"
+],function(noder,enhancePlaceContent,ensureNodes){
+ 
+
+    function before(node, placing, copyByClone) {
+        placing = enhancePlaceContent(placing,node);
+        var refNode = node,
+            parent = refNode.parentNode;
+        if (parent) {
+            var nodes = ensureNodes(placing, copyByClone);
+            for (var i = 0; i < nodes.length; i++) {
+                parent.insertBefore(nodes[i], refNode);
+            }
+        }
+        return this;
+    }
+
+	
+	return noder.before = before;
 });
 define('skylark-domx-noder/clone',[
 	"./noder"
@@ -419,7 +478,7 @@ define('skylark-domx-noder/create-fragment',[
     "skylark-langx-strings",
 	"./noder",
     "./create-element"
-],function(noder,createElement){
+],function(strings,noder,createElement){
     var fragmentRE = /^\s*<(\w+|!)[^>]*>/,
         singleTagRE = /^<(\w+)\s*\/?>(?:<\/\1>|)$/,
         div = document.createElement("div"),
@@ -652,7 +711,7 @@ define('skylark-domx-noder/html',[
     }
 
 
-	return noder.isInFrame = isInFrame;
+	return noder.html = html;
 });
 define('skylark-domx-noder/is-active',[
 	"./noder"
@@ -709,27 +768,6 @@ define('skylark-domx-noder/is-editable',[
 	
 	return noder.isEditable = isEditable;
 });
-define('skylark-domx-noder/is-element',[
-	"./noder"
-],function(noder){
- 
-    function isElement(node) {
-        return node && node.nodeType === 1;
-    }
-
-	
-	return noder.isElement = isElement;
-});
-define('skylark-domx-noder/is-fragment',[
-	"./noder"
-],function(noder){
- 
-    function isFragment(node) {
-        return node && node.nodeType === 11;
-    }
-
-	return noder.isFragment = isFragment;
-});
 define('skylark-domx-noder/is-fullscreen',[
 	"./noder",
     "./fullscreen"
@@ -740,6 +778,55 @@ define('skylark-domx-noder/is-fullscreen',[
     }
 	
 	return noder.isFullscreen = isFullscreen;
+});
+define('skylark-domx-noder/is-in-document',[
+	"./noder"
+],function(noder){
+    /*   
+     * Check to see if a dom node is in the document
+     * @param {Node} node
+     */
+    function isInDocument(node) {
+      return (node === document.body) ? true : document.body.contains(node);
+    }     
+
+	
+	return noder.isInDocument = isInDocument;
+});
+define('skylark-domx-noder/is-in-frame',[
+	"./noder"
+],function(noder){
+     function isInFrame() {
+        try {
+            return window.parent !== window.self;
+        } catch (x) {
+            return true;
+        }
+    }
+	
+	return noder.isInFrame = isInFrame;
+});
+define('skylark-domx-noder/is-input',[
+	"./noder",
+    "./is-editable"
+],function(noder,isEditable){
+ 
+    function isInput (el) { 
+        return el.tagName === 'INPUT' || 
+               el.tagName === 'TEXTAREA' || 
+               el.tagName === 'SELECT' || 
+               isEditable(el); 
+    }
+	
+	return noder.isInput = isInput;
+});
+define('skylark-domx-noder/is-window',[
+    "skylark-langx-types",
+    "./noder"
+],function(types,noder){
+   
+    return noder.isWindow = types.isWindow;
+	
 });
 define('skylark-domx-noder/node-name',[
 	"./noder"
@@ -841,6 +928,35 @@ define('skylark-domx-noder/owner-window',[
 
 	return noder.ownerWindow = ownerWindow;
 });
+define('skylark-domx-noder/prepend',[
+    "./noder",
+    "./_enhance_place_content",
+    "./_ensure_nodes"
+],function(noder,enhancePlaceContent,ensureNodes){
+
+    /*   
+     * insert one or more nodes as the first children of the specified node.
+     * @param {Node} node
+     * @param {Node or ArrayLike} placing
+     * @param {Boolean Optional} copyByClone
+     */
+    function prepend(node, placing, copyByClone) {
+        var parentNode = node,
+            refNode = parentNode.firstChild,
+            nodes = ensureNodes(placing, copyByClone);
+        for (var i = 0; i < nodes.length; i++) {
+            if (refNode) {
+                parentNode.insertBefore(nodes[i], refNode);
+            } else {
+                parentNode.appendChild(nodes[i]);
+            }
+        }
+        return this;
+    }
+
+	
+	return noder.prepend = prepend;
+});
 define('skylark-domx-noder/reflow',[
 	"./noder"
 ],function(noder){
@@ -875,6 +991,61 @@ define('skylark-domx-noder/remove-child',[
 
 	
 	return noder.removeChild = removeChild;
+});
+define('skylark-domx-noder/remove',[
+	"./noder"
+],function(noder){
+ 
+    /*   
+     * Remove the set of matched elements from the DOM.
+     * @param {Node} node
+     */
+    function remove(node) {
+        if (node && node.parentNode) {
+            try {
+                node.parentNode.removeChild(node);
+            } catch (e) {
+                console.warn("The node is already removed", e);
+            }
+        }
+        return this;
+    }
+	
+	return noder.remove = remove;
+});
+define('skylark-domx-noder/replace',[
+	"./noder"
+],function(noder){
+     /*   
+     * Replace an old node with the specified node.
+     * @param {Node} node
+     * @param {Node} oldNode
+     */
+    function replace(node, oldNode) {
+        oldNode.parentNode.replaceChild(node, oldNode);
+        return this;
+    }
+
+	return noder.replace = replace;
+});
+define('skylark-domx-noder/reverse',[
+	"./noder"
+],function(noder){
+    /*   
+     *
+     * @param {Node} node
+     */
+    function reverse(node) {
+        var firstChild = node.firstChild;
+        for (var i = node.children.length - 1; i > 0; i--) {
+            if (i > 0) {
+                var child = node.children[i];
+                node.insertBefore(child, firstChild);
+            }
+        }
+    }
+	
+	return noder.reverse = reverse;
 });
 define('skylark-domx-noder/scrolling-element',[
 	"./noder"
@@ -1066,6 +1237,9 @@ define('skylark-domx-noder/wrapper',[
 define('skylark-domx-noder/main',[
 	"./noder",
 	"./active",
+	"./after",
+	"./append",
+	"./before",
 	"./clone",
 	"./contains",
 	"./create-element",
@@ -1084,13 +1258,22 @@ define('skylark-domx-noder/main',[
 	"./is-element",
 	"./is-fragment",
 	"./is-fullscreen",
+	"./is-in-document",
+	"./is-in-frame",
+	"./is-input",
+	"./is-text-node",
+	"./is-window",
 	"./node-name",
 	"./offset-parent",
 	"./overlay",
 	"./owner-doc",
 	"./owner-window",
+	"./prepend",
 	"./reflow",
 	"./remove-child",
+	"./remove",
+	"./replace",
+	"./reverse",
 	"./scrolling-element",
 	"./selectable",
 	"./throb",
