@@ -11,13 +11,6 @@ define([
         slice = Array.prototype.slice;
 
 
-
-
-
-    function fromPoint(x,y) {
-        return document.elementFromPoint(x,y);
-    }
-
     /**
      * Generate id
      * @param   {HTMLElement} el
@@ -48,9 +41,6 @@ define([
             el.blur();
         },
 
-        body: function() {
-            return document.body;
-        },
 
         generateId,
 

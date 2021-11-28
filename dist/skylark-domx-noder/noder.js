@@ -5,5 +5,5 @@
  * @link www.skylarkjs.org
  * @license MIT
  */
-define(["skylark-langx-ns","skylark-langx-types","skylark-langx-arrays","skylark-langx-strings","skylark-langx-scripter","skylark-domx-browser"],function(r,n,t,e,a,o){Array.prototype.map,Array.prototype.slice;function s(){return s}return Object.assign(s,{blur:function(r){r.blur()},body:function(){return document.body},generateId:function(r){for(var n=r.tagName+r.className+r.src+r.href+r.textContent,t=n.length,e=0;t--;)e+=n.charCodeAt(t);return e.toString(36)},fromPoint:function(r,n){return document.elementFromPoint(r,n)}}),r.attach("domx.noder",s)});
+define(["skylark-langx-ns","skylark-langx-types","skylark-langx-arrays","skylark-langx-strings","skylark-langx-scripter","skylark-domx-browser"],function(r,t,n,a,e,o){Array.prototype.map,Array.prototype.slice;function s(){return s}return Object.assign(s,{blur:function(r){r.blur()},generateId:function(r){for(var t=r.tagName+r.className+r.src+r.href+r.textContent,n=t.length,a=0;n--;)a+=t.charCodeAt(n);return a.toString(36)},fromPoint:fromPoint}),r.attach("domx.noder",s)});
 //# sourceMappingURL=sourcemaps/noder.js.map

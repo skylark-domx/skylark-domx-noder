@@ -99,13 +99,6 @@ define('skylark-domx-noder/noder',[
         slice = Array.prototype.slice;
 
 
-
-
-
-    function fromPoint(x,y) {
-        return document.elementFromPoint(x,y);
-    }
-
     /**
      * Generate id
      * @param   {HTMLElement} el
@@ -136,9 +129,6 @@ define('skylark-domx-noder/noder',[
             el.blur();
         },
 
-        body: function() {
-            return document.body;
-        },
 
         generateId,
 
@@ -363,6 +353,15 @@ define('skylark-domx-noder/before',[
 
 	
 	return noder.before = before;
+});
+define('skylark-domx-noder/body',[
+	"./noder"
+],function(noder){
+	function body() {
+		return  document.body;
+	}
+	
+	return noder.body = body;
 });
 define('skylark-domx-noder/clone',[
 	"./noder"
@@ -627,6 +626,17 @@ define('skylark-domx-noder/focusable',[
     };
 	
 	return noder.focusable = focusable;
+});
+define('skylark-domx-noder/from-point',[
+	"./noder"
+],function(noder){
+
+    function fromPoint(x,y) {
+        return document.elementFromPoint(x,y);
+    }
+
+	
+	return noder.fromPoint = fromPoint;
 });
 define('skylark-domx-noder/fullscreen',[
     "skylark-domx-browser",
@@ -1047,6 +1057,15 @@ define('skylark-domx-noder/reverse',[
 	
 	return noder.reverse = reverse;
 });
+define('skylark-domx-noder/root',[
+	"./noder"
+],function(noder){
+	function root() {
+		return  document.documentElement;
+	}
+	
+	return noder.root = root;
+});
 define('skylark-domx-noder/scrolling-element',[
 	"./noder"
 ],function(noder){
@@ -1240,6 +1259,7 @@ define('skylark-domx-noder/main',[
 	"./after",
 	"./append",
 	"./before",
+	"./body",
 	"./clone",
 	"./contains",
 	"./create-element",
@@ -1248,6 +1268,7 @@ define('skylark-domx-noder/main',[
 	"./doc",
 	"./empty",
 	"./focusable",
+	"./from-point",
 	"./fullscreen",
 	"./html",
 	"./is-active",
@@ -1274,6 +1295,7 @@ define('skylark-domx-noder/main',[
 	"./remove",
 	"./replace",
 	"./reverse",
+	"./root",
 	"./scrolling-element",
 	"./selectable",
 	"./throb",
