@@ -130,9 +130,7 @@ define('skylark-domx-noder/noder',[
         },
 
 
-        generateId,
-
-        fromPoint
+        generateId
     });
 
     return skylark.attach("domx.noder" , noder);
