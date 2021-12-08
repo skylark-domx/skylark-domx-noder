@@ -34,6 +34,7 @@ define([
 	"./overlay",
 	"./owner-doc",
 	"./owner-window",
+	"./picture-in-picture",
 	"./prepend",
 	"./reflow",
 	"./remove-child",

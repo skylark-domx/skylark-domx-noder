@@ -936,6 +936,28 @@ define('skylark-domx-noder/owner-window',[
 
 	return noder.ownerWindow = ownerWindow;
 });
+define('skylark-domx-noder/picture-in-picture',[
+    "skylark-domx-browser",
+	"./noder"
+],function(browser,noder){
+
+    var fulledEl = null;
+
+    function pictureInPicture(el) {
+        if (el === false) {
+            return   document.exitPictureInPicture();
+        } else if (el) {
+            if (el !== document.pictureInPictureElement) {
+                el.requestPictureInPicture();
+                fulledEl = el;
+            }          
+        } else {
+            return document.pictureInPictureElement;
+        }
+    }
+	
+	return noder.pictureInPicture = pictureInPicture;
+});
 define('skylark-domx-noder/prepend',[
     "./noder",
     "./_enhance_place_content",
@@ -1287,6 +1309,7 @@ define('skylark-domx-noder/main',[
 	"./overlay",
 	"./owner-doc",
 	"./owner-window",
+	"./picture-in-picture",
 	"./prepend",
 	"./reflow",
 	"./remove-child",
