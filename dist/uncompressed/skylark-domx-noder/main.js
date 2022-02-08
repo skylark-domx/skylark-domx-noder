@@ -7,6 +7,7 @@ define([
 	"./body",
 	"./clone",
 	"./contains",
+	"./contents",
 	"./create-element",
 	"./create-fragment",
 	"./create-text-node",

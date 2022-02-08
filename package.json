@@ -26,11 +26,11 @@
   "dependencies": {
     "skylark-domx-browser": "git+https://github.com/skylark-domx/skylark-domx-browser.git",
     "skylark-domx-styler": "git+https://github.com/skylark-domx/skylark-domx-styler.git",
-    "skylark-langx-ns": "git+https://github.com/skylark-langx/skylark-langx-ns.git",
-    "skylark-langx-types": "git+https://github.com/skylark-langx/skylark-langx-types.git",
     "skylark-langx-arrays": "git+https://github.com/skylark-langx/skylark-langx-arrays.git",
+    "skylark-langx-ns": "git+https://github.com/skylark-langx/skylark-langx-ns.git",
+    "skylark-langx-scripter": "git+https://github.com/skylark-langx/skylark-langx-scripter.git",
     "skylark-langx-strings": "git+https://github.com/skylark-langx/skylark-langx-strings.git",
-    "skylark-langx-scripter": "git+https://github.com/skylark-langx/skylark-langx-scripter.git"
+    "skylark-langx-types": "git+https://github.com/skylark-langx/skylark-langx-types.git"
   },
   "engines": {
     "node": ">=0.8.0"

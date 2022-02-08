@@ -422,6 +422,38 @@ define('skylark-domx-noder/contains',[
 	
 	return noder.contains = contains;
 });
+define('skylark-domx-noder/node-name',[
+	"./noder"
+],function(noder){
+ 
+    function nodeName(elm, chkName) {
+        var name = elm.nodeName && elm.nodeName.toLowerCase();
+        if (chkName !== undefined) {
+            return name === chkName.toLowerCase();
+        }
+        return name;
+    };
+	
+	return noder.nodeName = nodeName;
+});
+define('skylark-domx-noder/contents',[
+	"./noder",
+    "./node-name"
+],function(noder,nodeName){
+ 
+    /*   
+     * Get the children of the specified node, including text and comment nodes.
+     * @param {HTMLElement} elm
+     */
+    function contents(elm) {
+        if (nodeName(elm, "iframe")) {
+            return elm.contentDocument;
+        }
+        return elm.childNodes;
+    }
+	
+	return noder.contents = contents;
+});
 define('skylark-domx-noder/create-element',[
     "skylark-langx-types",
 	"./noder"
@@ -835,20 +867,6 @@ define('skylark-domx-noder/is-window',[
    
     return noder.isWindow = types.isWindow;
 	
-});
-define('skylark-domx-noder/node-name',[
-	"./noder"
-],function(noder){
- 
-    function nodeName(elm, chkName) {
-        var name = elm.nodeName && elm.nodeName.toLowerCase();
-        if (chkName !== undefined) {
-            return name === chkName.toLowerCase();
-        }
-        return name;
-    };
-	
-	return noder.nodeName = nodeName;
 });
 define('skylark-domx-noder/offset-parent',[
 	"./noder"
@@ -1282,6 +1300,7 @@ define('skylark-domx-noder/main',[
 	"./body",
 	"./clone",
 	"./contains",
+	"./contents",
 	"./create-element",
 	"./create-fragment",
 	"./create-text-node",
